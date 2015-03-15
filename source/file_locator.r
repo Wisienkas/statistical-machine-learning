@@ -15,6 +15,7 @@
 getAllMemberImages <- function(basePath) {  
   group_folders <- list.dirs(path = basePath)    
   members <- matrix(ncol = 6, byrow = TRUE, dimnames = list(c('Member'), c('group_name', 'member_name', 'res_100', 'res_200', 'res_300', 'corner_file')));
+  members <- members[-1,];
   
   #Run through all the folders
   lapply(X = group_folders, FUN = function(dirPath){
@@ -30,8 +31,9 @@ getAllMemberImages <- function(basePath) {
     
     #Get images for that user
     member <- getSingleMemberImages(basePath, group_name, member_name);
+    #print(member);
     
-    if(length(member) > 0) {
+    if(length(member) > 0 && !is.null(member)) {
       #Add row to matrix
       members <<- rbind(members, member);
     }
@@ -60,9 +62,9 @@ getSingleMemberImages <- function(basePath, group_name, member_name) {
   
   #The member object
   corner_file <- paste(dirPath, '/Corners.txt', sep = "");
-  res_100_files <- c();
-  res_200_files <- c();
-  res_300_files <- c();
+  res_100_files <- NULL;
+  res_200_files <- NULL;
+  res_300_files <- NULL;
   
   #Check if the file contains the DPI we want
   lapply(X = files, FUN = function(fileName){     
@@ -79,9 +81,12 @@ getSingleMemberImages <- function(basePath, group_name, member_name) {
   });
   
   #No image files found, do not add
-  if(length(res_100_files) == 0 && length(res_200_files) == 0 && length(res_300_files) == 0) {
+  if(is.null(res_100_files) && is.null(res_200_files) && is.null(res_300_files)) {
     return();
   }
+  #if(length(res_100_files) == 0 && length(res_200_files) == 0 && length(res_300_files) == 0) {
+    #return();
+  #}
   
   #Prepare information to be added to the matrix
   member <- list(group_name, member_name, res_100_files, res_200_files, res_300_files, corner_file);
@@ -124,9 +129,9 @@ getDpiImage <- function(member, row, dpi) {
 }
 
 ##Testing
-#member <- getSingleMemberImages("C:\\Users\\Thomas\\Documents\\Subversion\\", "group6", "member2");
+#member <- getSingleMemberImages('C:\\subversion\\', 'group6', 'member2');
 #print(member);
-#mInfo <- getAllMemberImages("C:\\Users\\Thomas\\Documents\\Subversion\\");
+#mInfo <- getAllMemberImages("C:\\subversion\\");
 #for(row in 1:nrow(mInfo))
 #{
 #print(mInfo[row,]);
