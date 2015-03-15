@@ -86,7 +86,8 @@ loadPersonsImageData <- function(memberInfo, sigma, DPI){
   }
   
   #use the generated training data to apply learning
-  print( trainingDigit[[1]] )
+  #  No reason to printing data every time. 
+  # print( trainingDigit[[1]] )
   
   return(trainingDigit)
 }
@@ -109,7 +110,7 @@ smoothImage <- function(grayImg, sigma){
     3,# number of rows 
     3)
   kernel <- kernel/9
-  print(kernel)
+  # print(kernel)
   
   #using r library for smoothing
   smoothed <- NULL;

@@ -6,7 +6,7 @@ dpi <- c(100)
 k_arr <- c(1, 5, 10, 50)
 
 text <- c()
-memberInfo <- getSingleMemberImages('C:\\Users\\Thomas\\Documents\\Subversion\\', 'group6', 'member1');
+memberInfo <- getSingleMemberImages('C:/Users/wisienkas/workspace/SML-database', 'group6', 'member1');
 
 #Set sigma to 0 to disable
 sigma <- 0;

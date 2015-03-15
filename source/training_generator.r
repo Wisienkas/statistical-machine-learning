@@ -88,5 +88,5 @@ classification <- function(numbers, times) {
   for(n in numbers)
     result <- c(result, rep(x = n, times = times))
   
-  return( factor(levels = numbers, x = result) )
+  return( factor(levels = unique(numbers), x = result) )
 }
