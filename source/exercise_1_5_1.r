@@ -13,7 +13,7 @@ sigma <- 0;
 
 for(i in 1:length(dpi)) { 
   RawTrainData <- loadPersonsImageData(memberInfo, sigma, dpi[[i]]);
-  text <- knnRunner(RawTrainData, k_arr, dpi[[i]], text)
+  text <- knnRunner(RawTrainData, k_arr, dpi[[i]], text, 0.5)
 }
 
 # print all 50/50 results 

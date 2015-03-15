@@ -4,11 +4,11 @@
 # - [k] -> neighboors to look for in knn function
 #
 # Return Text result of knn - Crossvalidation
-knnCrossValidation <- function(RawTrainData, runs, k) {
+knnCrossValidation <- function(RawTrainData, runs, k, split) {
   #randomly split data in 0.9 / 0.1:
   knn_obs_data <- c();
   
-  retList = getRandomSplit(RawTrainData, 0.9)
+  retList = getRandomSplit(RawTrainData, split)
   training = retList[[1]]
   testing = retList[[2]]
   trainClassF = retList[[3]]

@@ -7,11 +7,10 @@ source('training_generator.r')
 # - [text_result] -> Previous results or string. 
 #
 # Return [text_result] appended with result
-knnRunner <- function(RawTrainData, k_arr, dpi, text_result)
+knnRunner <- function(RawTrainData, k_arr, dpi, text_result, split)
 {
-  # Exercise 1.5.1
   #randomly split data in equal sizes:
-  retList = getRandomSplit(RawTrainData, 0.5)
+  retList = getRandomSplit(RawTrainData, split)
   training = retList[[1]]
   testing = retList[[2]]
   trainClassF = retList[[3]]
