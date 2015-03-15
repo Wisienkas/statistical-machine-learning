@@ -1,3 +1,5 @@
+source('training_generator.r')
+
 # Given:
 # - [RawTrainData] -> Raw training data
 # - [k_arr] -> Array of k values to test
