@@ -45,13 +45,12 @@ getRandomSplit <- function(trainingData, trainingPc){
   trainClassF <- factor(trainClass)
   testClassF <- factor(testClass)
   
-  print(nrow(training) );
-  print(length(trainClassF) );
-  print(nrow(testing) );
-  print(length(testClassF) );
+  print(paste("Training Rows:", nrow(training) ));
+  print(paste("Training classification Length:", length(trainClassF) ));
+  print(paste("Testing Rows:", nrow(testing) ));
+  print(paste("Training classification Length:", length(testClassF) ));
   
   return(list(training, testing, trainClassF, testClassF))
-  
   
   #non balanced random split
   # retList[[5]][]
@@ -81,4 +80,13 @@ getRandomSplit <- function(trainingData, trainingPc){
   # splitClass <- split(retList[[3]], factor(splittingIndexer))
   # trainClassF = splitClass[[1]]
   # testClassF = splitClass[[2]]
+}
+
+
+classification <- function(numbers, times) {
+  result <- c()
+  for(n in numbers)
+    result <- c(result, rep(x = n, times = times))
+  
+  return( factor(levels = numbers, x = result) )
 }

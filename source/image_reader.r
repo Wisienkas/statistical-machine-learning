@@ -155,11 +155,14 @@ smoothImage <- function(grayImg, sigma){
 # =============
 # Testing
 # =============
-images <- c("C:\\Users\\wisienkas\\workspace\\SML-database\\group6\\member1\\Ciphers100-0.png",
-            "C:\\Users\\wisienkas\\workspace\\SML-database\\group6\\member1\\Ciphers100-1.png",
-            "C:\\Users\\wisienkas\\workspace\\SML-database\\group6\\member1\\Ciphers100-2.png",
-            "C:\\Users\\wisienkas\\workspace\\SML-database\\group6\\member1\\Ciphers100-3.png",
-            "C:\\Users\\wisienkas\\workspace\\SML-database\\group6\\member1\\Ciphers100-4.png");
+loadPersonsImageDataTest <- function() {
+  images <- c("/home/wisienkas/workspace/school/6sem/sml/exercise/svn/trunk/group6/member1/Ciphers100-0.png",
+              "/home/wisienkas/workspace/school/6sem/sml/exercise/svn/trunk/group6/member1/Ciphers100-1.png",
+              "/home/wisienkas/workspace/school/6sem/sml/exercise/svn/trunk/group6/member1/Ciphers100-2.png",
+              "/home/wisienkas/workspace/school/6sem/sml/exercise/svn/trunk/group6/member1/Ciphers100-3.png",
+              "/home/wisienkas/workspace/school/6sem/sml/exercise/svn/trunk/group6/member1/Ciphers100-4.png");
 
-rawData <- loadPersonsImageData(images, 1, 100, "C:\\Users\\wisienkas\\workspace\\SML-database\\group6\\member1\\Corners.txt")
+  rawData <- loadPersonsImageData(images, 1, 100, "/home/wisienkas/workspace/school/6sem/sml/exercise/svn/trunk/group6/member1/Corners.txt")
+  return(rawData)
+}
 
