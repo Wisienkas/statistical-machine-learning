@@ -2,6 +2,7 @@ library("png")
 library("EBImage")
 library("class")
 library("gmodels")
+source('file_locator.r')
 
 
 # Given:
@@ -10,17 +11,15 @@ library("gmodels")
 # - Sigma value (default 1)
 # 
 # returns list of image (raw pixel values)
-loadPersonsImageData <- function(paths, sigma, DPI, corners){
+loadPersonsImageData <- function(memberInfo, sigma, DPI){
   #load the scaned images
+  
+  paths <- getDpiImage(memberInfo, 1, DPI)[[1]]
   print(paths)
+  
   ciffers <- lapply(X = paths, FUN = readPNG);
-#  ciffers <- list(readPNG(paste(c(path, groupFolder, groupMemberFolder, name, DPI, "-0.png"), collapse = "")),
-#                  readPNG(paste(c(path, groupFolder, groupMemberFolder, name, DPI, "-1.png"), collapse = "")),
-#                  readPNG(paste(c(path, groupFolder, groupMemberFolder, name, DPI, "-2.png"), collapse = "")),
-#                  readPNG(paste(c(path, groupFolder, groupMemberFolder, name, DPI, "-3.png"), collapse = "")),
-#                  readPNG(paste(c(path, groupFolder, groupMemberFolder, name, DPI, "-4.png"), collapse = "")))
   #load the corner values
-  corners <- read.csv(corners)
+  corners <- read.csv(getCornerPath(memberInfo, 1)[[1]])
   print("recalculating corners for current dpi")
   corners <- trunc(corners*DPI/300)
   print(corners)
@@ -51,7 +50,6 @@ loadPersonsImageData <- function(paths, sigma, DPI, corners){
   {
     prepared[[i]] <- smoothed[[i]]
   }
-  
   
   #extract individual ciffers
   xStep <- (corners[1,7]-corners[1,1])/20;
@@ -114,8 +112,13 @@ smoothImage <- function(grayImg, sigma){
   print(kernel)
   
   #using r library for smoothing
-  smoothed <- filter2(gblur(grayImg, sigma = sigma), kernel)
-  #smoothed <- filter2(grayImg, kernel)
+  smoothed <- NULL;
+  if(sigma == 0) {
+    smoothed <- filter2(grayImg, kernel);
+  }
+  else {
+    smoothed <- filter2(gblur(grayImg, sigma = sigma), kernel)
+  }
   
   #simple implementation of average filter:
   # imgWidth <- length(gray[1,])
@@ -155,14 +158,11 @@ smoothImage <- function(grayImg, sigma){
 # =============
 # Testing
 # =============
-loadPersonsImageDataTest <- function() {
-  images <- c("/home/wisienkas/workspace/school/6sem/sml/exercise/svn/trunk/group6/member1/Ciphers100-0.png",
-              "/home/wisienkas/workspace/school/6sem/sml/exercise/svn/trunk/group6/member1/Ciphers100-1.png",
-              "/home/wisienkas/workspace/school/6sem/sml/exercise/svn/trunk/group6/member1/Ciphers100-2.png",
-              "/home/wisienkas/workspace/school/6sem/sml/exercise/svn/trunk/group6/member1/Ciphers100-3.png",
-              "/home/wisienkas/workspace/school/6sem/sml/exercise/svn/trunk/group6/member1/Ciphers100-4.png");
+#images <- c("C:\\Users\\wisienkas\\workspace\\SML-database\\group6\\member1\\Ciphers100-0.png",
+#            "C:\\Users\\wisienkas\\workspace\\SML-database\\group6\\member1\\Ciphers100-1.png",
+#            "C:\\Users\\wisienkas\\workspace\\SML-database\\group6\\member1\\Ciphers100-2.png",
+#            "C:\\Users\\wisienkas\\workspace\\SML-database\\group6\\member1\\Ciphers100-3.png",
+#            "C:\\Users\\wisienkas\\workspace\\SML-database\\group6\\member1\\Ciphers100-4.png");
 
-  rawData <- loadPersonsImageData(images, 1, 100, "/home/wisienkas/workspace/school/6sem/sml/exercise/svn/trunk/group6/member1/Corners.txt")
-  return(rawData)
-}
+#rawData <- loadPersonsImageData(images, 1, 100, "C:\\Users\\wisienkas\\workspace\\SML-database\\group6\\member1\\Corners.txt")
 
