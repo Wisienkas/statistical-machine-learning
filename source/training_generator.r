@@ -98,15 +98,13 @@ splitBalanced <- function(largeMatrix, classes, split) {
   print(inStreak)
   
   persons <- len / (factors * inStreak)
-  
+
   takePerDigit <- inStreak * split
-  
+
   index_arr <- c()
-  for(p in 1:persons) {
-    for(f in 1:(factors * persons)) {
-      samp <- sample(x = seq(from = (inStreak * (f - 1)) + 1, to = inStreak * f), replace = FALSE, size = takePerDigit)
-      index_arr <- c(index_arr, samp)
-    }
+  for(f in 1:(factors * persons)) {
+    samp <- sample(x = seq(from = (inStreak * (f - 1)) + 1, to = inStreak * f), replace = FALSE, size = takePerDigit)
+    index_arr <- c(index_arr, samp)
   }
   
   trainData <- largeMatrix[index_arr, ]
