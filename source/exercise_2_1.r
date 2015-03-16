@@ -45,7 +45,7 @@ result <- result[-1,];
 
 for(cutoff in cutoff_arr) {
   myData.trunc <- pcaTruncate(data = myData.data, cutoff = cutoff)
-  #allData.trunc <- pcaTruncate(data = allData.data, cutoff = cutoff)
+  allData.trunc <- pcaTruncate(data = allData.data, cutoff = cutoff)
   for(k in k_arr) {
     # Knn Cross validation could be swapped with just regular Knn
     small <- knnCrossValidation(RawTrainData = myData.trunc, runs = cv_runs, k = k)

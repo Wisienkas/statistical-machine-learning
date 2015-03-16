@@ -134,3 +134,22 @@ streamlineList <- function(largeList) {
   }
   return(arr)
 }
+
+getChunkSplit <- function(largeMatrix, classes, split, chunkSize) {
+  chunks <- floor(length(classes) / chunkSize)
+  
+  trainChunks <- floor(split * chunks)
+  
+  choosenChunks <- sample(x = 1:chunks, size = trainChunks)
+
+  index_arr <- c()
+  for(chunkIndex in choosenChunks) {
+    index_arr <- c(index_arr, ((chunkIndex - 1) * chunkSize) + 1:chunkSize)
+  }
+  
+  trainData <- largeMatrix[index_arr, ]
+  testData <- largeMatrix[-index_arr, ]
+  trainClassF <- classes[index_arr]
+  testClassF <- classes[-index_arr]
+  return( list(trainData, testData, trainClassF, testClassF) )
+}
