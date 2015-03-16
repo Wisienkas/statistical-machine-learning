@@ -60,3 +60,12 @@ for(cutoff in cutoff_arr) {
   }
 }
 
+## Plot for data on this form
+## > df
+##   l.k  l.times l.correctness
+## 1   1 3.967227         0.811
+## 2   5 3.729213         0.824
+## 3  10 3.482199         0.823
+##
+## ggplot(data = df, aes(x = l.k, y = value, color = variable)) + geom_line(aes(y = l.times, col = "times")) + geom_line(aes(y = l.correctness, col = "correctness"))
+
