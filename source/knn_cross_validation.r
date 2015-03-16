@@ -1,30 +1,46 @@
+# Libraries
+source("training_generator.r")
+
 # Given:
 # - [RawTrainData] -> Raw image data in grayscale
 # - [runs] -> How many runs for crossvalidation
 # - [k] -> neighboors to look for in knn function
 #
 # Return Text result of knn - Crossvalidation
-knnCrossValidation <- function(RawTrainData, runs, k, split) {
+knnCrossValidation <- function(RawTrainData, runs, k) {
+  
   #randomly split data in 0.9 / 0.1:
   knn_obs_data <- c();
   
-  retList = getRandomSplit(RawTrainData, split)
-  training = retList[[1]]
-  testing = retList[[2]]
-  trainClassF = retList[[3]]
-  testClassF = retList[[4]]
+  if(class(RawTrainData) == "list") {
+    RawTrainData <- streamlineList(largeList = RawTrainData)
+  }
   
+  train <- RawTrainData
+  cla <- classification(numbers = seq(1:10), times = 400)
+  cla <- rep(x = cla, times = ( dim(RawTrainData)[1] / length(cla) ) )
+  if(length(cla) != dim(RawTrainData)[1]) {
+    print("Failed Class")
+    stop(cla, dim(RawTrainData), domain = "Classification Failed")
+  }
   # Initialize variable: sum
   sum <- 0
   
   for(l in 1:runs) 
   {  
-    # combining training and testing
-    train <- rbind(training, testing)
-    # Combines the train and test class, so they keep their data form.
-    cla <- factor(c(trainClassF, testClassF), levels = 1:nlevels(trainClassF), labels = levels(trainClassF))
     # Running knn.cv (crossvalidation)
     knn_res <- knn.cv(train = train, cl = cla, k = k, prob = TRUE)
+    len <- length(knn_res)
+    if(sum(knn_res[1:20] == 2))
+      knn_res <- correctBug(knn_res)
+    
+    if(len != length(knn_res))  {
+      print("Failed bug")
+      print(knn_res)
+      print(len, length(knn_res))
+      stop(len, knn_res, domain ="Bug fix failed")
+    }
+      
     # Makes a crosstable based on the validation of the data
     ct <- CrossTable(cla, knn_res, prop.r = TRUE)
     for(point in 1:10)
@@ -54,4 +70,15 @@ knnCrossValidation <- function(RawTrainData, runs, k, split) {
     return(diff ^ 2)
   })))) / length(knn_obs_data))
   return(c(mean, sd))
+}
+
+correctBug <- function(knn_result) {
+  for(index in 1:length(knn_result)) {
+    if(knn_result[index] == 2) {
+      knn_result[index] <- 1
+    } else if(knn_result[index] == 1) {
+      knn_result[index] <- 2
+    }
+  }
+  return(knn_result)
 }

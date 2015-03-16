@@ -167,3 +167,38 @@ smoothImage <- function(grayImg, sigma){
 
 #rawData <- loadPersonsImageData(images, 1, 100, "C:\\Users\\wisienkas\\workspace\\SML-database\\group6\\member1\\Corners.txt")
 
+haveIlligalColumns <- function(data, requiredCols) {
+  for(el in data){
+    if(ncol(el) != requiredCols) {
+      print(paste("Illigal amount of Columns! Had:", ncol(el)))
+      return(TRUE)      
+    }
+  }
+  return(FALSE)
+}
+
+loadAllPeople <- function(basePath) {
+  
+  allPaths <- getAllMemberImages(basePath)
+  
+  illigalDataSets <- 0
+  
+  allData <- NULL
+  # Index [1, ] is NA all over
+  for(personNumber in 1:length(allPaths[, 1])) {
+    temp <- loadPersonsImageData(allPaths[personNumber, ], 1, 100)
+    # Handle if people doesn't have the right amount of columns as 
+    # it fucks up things.
+    if(haveIlligalColumns(temp, 380) == FALSE){
+      print("Adding Data")
+      allData <- rbind(allData, temp)  
+    } else {
+      illigalDataSets <- illigalDataSets + 1
+      print("NOT adding data")
+    }
+  }
+  
+  print(paste("Illigal DataSets:", illigalDataSets))
+  
+  return(allData)
+}

@@ -90,3 +90,12 @@ classification <- function(numbers, times) {
   
   return( factor(levels = unique(numbers), x = result) )
 }
+
+streamlineList <- function(largeList) {
+  print(paste("Length of large List:", length(largeList)))
+  arr <- largeList[[1]]
+  for(i in seq(2:length(largeList))){
+    arr <- rbind(arr, largeList[[i]])
+  }
+  return(arr)
+}
