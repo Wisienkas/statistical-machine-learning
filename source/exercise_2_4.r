@@ -19,6 +19,7 @@ allData.data.raw <- loadAllPeople(basePath = ressourcePath)
 myData.data <- streamlineList(myData.data.raw)
 allData.data <- streamlineList(allData.data.raw)
 
+myData.classF <- classification(numbers = seq(0:9), times = 400)
+allData.classF <- rep(x = myData.classF, times = ( dim(allData.data)[1] / dim(myData.data)[1] ) )
 
-
-kmeans
+allData.kmeans <- kmeans(allData.data, centers = 140, iter.max = 30) 
