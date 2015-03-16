@@ -15,3 +15,6 @@ vignettes/*.pdf
 # R-studio added this to ignore as 
 # a R-project was initialized
 .Rproj.user
+
+# .RData
+**/*.RData
