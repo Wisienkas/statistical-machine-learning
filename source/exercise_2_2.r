@@ -3,36 +3,38 @@ source('image_reader.r')
 source('knn_runner.r')
 source('normalization.r')
 source('knn_cross_validation.r')
+source('pca_optimization.r')
 
-dpi <- 100
-split <- 0.5
-k_arr <- c(1)
+best_cutoff <- 0.99;
+best_k <- 10;
+runs <- 10;
 
-memberInfo <- getSingleMemberImages('C:\\Users\\Thomas\\Documents\\Subversion\\', 'group6', 'member1');
+#Path to images
+myData.path <- getSingleMemberImages('C:\\subversion\\', 'group6', 'member1');
 
-#Set sigma to 0 to disable
-sigma <- 0;
+#The raw data
+myData.data.raw <- loadPersonsImageData(memberInfo = myData.path, sigma = 1, DPI = 100);
 
-#Get the training data
-data <- loadPersonsImageData(memberInfo, sigma, dpi);
+myData.data <- streamlineList(myData.data.raw);
 
-#Do the normalization before PCA
-data_norm_before <-z_score_normalize(data);
-#Perform PCA on the data_norm_before
-data_pca_before <- NULL;
+#Perform PCA
+myData.pca_first.trunc <- pcaTruncate(data = myData.data, cutoff = best_cutoff);
 
-#Containing the result from before
-data_before <- data_pca_before;
+#Perform normalization
+myData.pca_first.norm <- z_score_normalize(myData.pca_first.trunc);
 
-#Perform the PCA on the dat
-data_pca_after <- NULL;
-#Normalize the data after PCA
-data_norm_after <- z_score_normalize(data_pca_after);
-#Containing the result for after
-data_after <- Normalize;
+#Perform KNN with cross validation
+myData.pca_first.knn <- knnCrossValidation(RawTrainData = myData.pca_first.norm, runs = runs, k = best_k);
 
-#Run KNN cross-validation
-cross_data_after <- knnCrossValidation(data_after, 10, k_arr, split)
-cross_data_before <- knnCrossValidation(data_before, 10, k_arr, split)
+#Perform normalization
+myData.pca_last.norm <- z_score_normalize(myData.data);
 
-#TODO Analyze results (Diagrams?)
+#Perform PCA
+myData.pca_last.trunc <- pcaTruncate(data = myData.pca_last.norm, cutoff = best_cutoff);
+
+#Run KNN with cross validation
+myData.pca_last.knn <- knnCrossValidation(myData.pca_last.trunc, runs = runs, k = best_k)
+
+#Results
+print(paste("PCA first - ", "Mean: ", myData.pca_first.knn[[1]], " SD: ", myData.pca_first.knn[[2]], sep = ""));
+print(paste("PCA after - ", "Mean: ", myData.pca_last.knn[[1]], " SD: ", myData.pca_last.knn[[2]], sep = ""));
