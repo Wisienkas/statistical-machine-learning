@@ -82,6 +82,43 @@ getRandomSplit <- function(trainingData, trainingPc){
   # testClassF = splitClass[[2]]
 }
 
+splitBalanced <- function(largeMatrix, classes, split) {
+  # Similar digits in row
+  len <- length(classes)
+  factors <- nlevels(classes)
+  
+  inStreak <- 0
+  firstFactor <- classes[1]
+  for(i in 2:len) {
+    if(classes[i] != firstFactor) {
+      inStreak <- i - 1
+      break()
+    }
+  }
+  print(inStreak)
+  
+  persons <- len / (factors * inStreak)
+  
+  takePerDigit <- inStreak * split
+  
+  index_arr <- c()
+  for(p in 1:persons) {
+    for(f in 1:(factors * persons)) {
+      samp <- sample(x = seq(from = (inStreak * (f - 1)) + 1, to = inStreak * f), replace = FALSE, size = takePerDigit)
+      index_arr <- c(index_arr, samp)
+    }
+  }
+  
+  trainData <- largeMatrix[index_arr, ]
+  testData <- largeMatrix[-index_arr, ]
+  trainClassF <- classes[index_arr]
+  testClassF <- classes[-index_arr]
+  return( list(trainData, testData, trainClassF, testClassF) )
+}
+
+push <- function(l, x) {
+  assign(l, append(eval(as.name(l)), x), envir=parent.frame())
+}
 
 classification <- function(numbers, times) {
   result <- c()

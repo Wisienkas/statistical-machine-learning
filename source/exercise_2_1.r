@@ -3,6 +3,7 @@ source("file_locator.r")
 source("image_reader.r")
 source("pca_optimization.r")
 source("training_generator.r")
+source("knn_cross_validation.r")
 library("FactoMineR")
 
 # Read in Data
@@ -35,17 +36,27 @@ k_arr <- c(1, 3, 7, 13)
 
 cv_runs <- 10
 
-result <- NULL
+result.names <- c("k", "cutoff", "mean", "sd", "times")
+
+result <- matrix(ncol = 5, byrow = TRUE, dimnames = list(c('result'), result.names));
+result <- result[-1,];
+
+# colnames(result) <- result.names
 
 for(cutoff in cutoff_arr) {
   myData.trunc <- pcaTruncate(data = myData.data, cutoff = cutoff)
   #allData.trunc <- pcaTruncate(data = allData.data, cutoff = cutoff)
   for(k in k_arr) {
-    temp <- knnCrossValidation(RawTrainData = myData.trunc, runs = cv_runs, k = k)
-    temp <- c(paste("K:", k), paste("cutoff:" , cutoff), "MyData", temp)
-    result <- rbind(result, temp)
-    #temp <- knnCrossValidation(RawTrainData = allData.trunc, runs = cv_runs, k = k)
-    #temp <- c(paste("K:", k), paste("cutoff:" , cutoff), "MyData", temp)
-    #result <- rbind(result, temp)
+    # Knn Cross validation could be swapped with just regular Knn
+    small <- knnCrossValidation(RawTrainData = myData.trunc, runs = cv_runs, k = k)
+    small <- list(k = k, cutoff = cutoff, mean = small[[1]], sd = small[[2]], times = small[[3]])
+    
+    result <- rbind(result, small)
+    
+    large <- knnCrossValidation(RawTrainData = allData.trunc, runs = cv_runs, k = k)
+    large <- list(k = k, cutoff = cutoff, mean = large[[1]], sd = large[[2]], times = large[[3]])
+    
+    result <- rbind(result, large)
   }
 }
+

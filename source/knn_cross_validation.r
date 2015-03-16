@@ -26,10 +26,14 @@ knnCrossValidation <- function(RawTrainData, runs, k) {
   # Initialize variable: sum
   sum <- 0
   
+  time <- c()
+  
   for(l in 1:runs) 
   {  
+    start_time <- as.numeric(Sys.time())
     # Running knn.cv (crossvalidation)
     knn_res <- knn.cv(train = train, cl = cla, k = k, prob = TRUE)
+    
     len <- length(knn_res)
     if(sum(knn_res[1:20] == 2))
       knn_res <- correctBug(knn_res)
@@ -40,7 +44,6 @@ knnCrossValidation <- function(RawTrainData, runs, k) {
       print(len, length(knn_res))
       stop(len, knn_res, domain ="Bug fix failed")
     }
-      
     # Makes a crosstable based on the validation of the data
     ct <- CrossTable(cla, knn_res, prop.r = TRUE)
     for(point in 1:10)
@@ -48,6 +51,8 @@ knnCrossValidation <- function(RawTrainData, runs, k) {
       sum <- sum + ct$prop.row[point, point]
       knn_obs_data <- rbind(knn_obs_data, ct$prop.row[point, point])
     }
+    stop_time <- as.numeric(Sys.time()) - start_time
+    time <- c(time, stop_time)
   }
   # mean is the total probability added together divided by 
   mean <- sum / (10 * runs)
@@ -69,7 +74,8 @@ knnCrossValidation <- function(RawTrainData, runs, k) {
     diff <- mean - X
     return(diff ^ 2)
   })))) / length(knn_obs_data))
-  return(c(mean, sd))
+  
+  return(list(mean, sd, time))
 }
 
 correctBug <- function(knn_result) {
