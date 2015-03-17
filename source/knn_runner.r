@@ -39,6 +39,31 @@ knnRunner <- function(RawTrainData, k_arr, dpi, text_result, split)
 knn.run <- function(largeMatrix, classes, k_arr, split, pca = FALSE) {
   
   knn.data <- splitBalanced(largeMatrix = largeMatrix, classes = classes, split = split)
+  #knn.data <- getChunkSplit(largeMatrix = largeMatrix, classes = classes, split = split, chunkSize = 4000)
+  knn.train <- knn.data[[1]]
+  knn.test <- knn.data[[2]]
+  knn.trainClassF <- knn.data[[3]]
+  knn.testClassF <- knn.data[[4]]
+  
+  result.names <- c("k", "split", "correctness", "times")
+  
+  result <- matrix(ncol = 4, byrow = TRUE, dimnames = list(c('result'), result.names));
+  result <- result[-1,];
+  
+  for(k in k_arr) {
+    time <- as.numeric(Sys.time())
+    knn_result <- knn(train = knn.train, test = knn.test, cl = knn.trainClassF, k = k)
+    correctness <- mean(knn.testClassF == knn_result)
+    time <- as.numeric(Sys.time()) - time
+    res <- list(k = k, split = split, correctness = correctness, times = time)
+    result <- rbind(result, res)
+  }
+  
+  return( result )
+}
+
+knn.run_split <- function(largeMatrix, classes, k_arr, split, chunkSize) {
+  knn.data <- getChunkSplit(largeMatrix = largeMatrix, classes = classes, split = split, chunkSize = chunkSize)
   knn.train <- knn.data[[1]]
   knn.test <- knn.data[[2]]
   knn.trainClassF <- knn.data[[3]]
