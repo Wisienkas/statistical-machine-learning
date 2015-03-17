@@ -35,8 +35,8 @@ knnCrossValidation <- function(RawTrainData, runs, k) {
     knn_res <- knn.cv(train = train, cl = cla, k = k, prob = TRUE)
     
     len <- length(knn_res)
-    if(sum(knn_res[1:20] == 2))
-      knn_res <- correctBug(knn_res)
+    #if(sum(knn_res[1:200] == 2) >= 150)
+    #  knn_res <- correctBug(knn_res)
     
     if(len != length(knn_res))  {
       print("Failed bug")

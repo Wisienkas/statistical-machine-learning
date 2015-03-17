@@ -22,4 +22,20 @@ allData.data <- streamlineList(allData.data.raw)
 myData.classF <- classification(numbers = seq(0:9), times = 400)
 allData.classF <- rep(x = myData.classF, times = ( dim(allData.data)[1] / dim(myData.data)[1] ) )
 
-allData.kmeans <- kmeans(allData.data, centers = 140, iter.max = 30) 
+myData.trunc <- pcaTruncate(data = myData.data, cutoff = 0.95)
+allData.trunc <- pcaTruncate(data = allData.data, cutoff = 0.95)
+
+myData.kmeans <- kmeans(myData.trunc, centers = 10, iter.max = 30)
+allData.kmeans <- kmeans(allData.trunc, centers = 140, iter.max = 30)
+
+# 2D Clustering Image
+plot(x = myData.data[1:2, ], col = myData.kmeans$cluster, pch = 20, cex = 2, main = "K means Clustering")
+# 3D Clustering Image
+scatterplot3d(myData.trunc[,1:3], color = myMeans$cluster, pch = 1, cex.symbols = 0.5, main = "K means Clustering")
+# Hierarchy Complete
+myData.complete <- hclust(dist(myData.trunc), method = "complete")
+plot(myData.complete, main = "Hierarchy Complete", cex = 0.1)
+# Hierarchy Single
+myData.single <- hclust(dist(myData.trunc), method = "single")
+plot(myData.single, main = "Hierarchy Single", cex = 0.1)
+
