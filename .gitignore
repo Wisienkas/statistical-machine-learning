@@ -18,3 +18,10 @@ vignettes/*.pdf
 
 # .RData
 **/*.RData
+
+# images
+**/*.png
+**/*.PNG
+**/*.jpg
+**/*.tiff
+**/*.jpeg
