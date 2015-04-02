@@ -1,4 +1,7 @@
 install.packages('ElemStatLearn')
+install.packages("klaR")
+install.packages("caret")
+
 library('ElemStatLearn')
 library("klaR")
 library("caret")
