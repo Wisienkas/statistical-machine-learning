@@ -4,6 +4,7 @@ source('knn_runner.r')
 source('normalization.r')
 source('knn_cross_validation.r')
 source('pca_optimization.r')
+source('training_generator.r')
 
 library(klaR)
 library(e1071)
@@ -77,7 +78,7 @@ allData.data.raw <- loadAllPeople(basePath = ressourcePath)
 
 allData.data <- streamlineList(largeList = allData.data.raw);
 
-allData.data.class <- rep(times = nrow(allData.data) / 4000, x = classification(numbers = 0:9, times = 400))
+allData.data.class <- classification(numbers = rep(times = nrow(allData.data) / 4000, x = 0:9), times = 400)
 
 levels <- c(0:9)
 cutoffs <- c(0.8, 0.9, 0.95, 0.99);
@@ -115,5 +116,5 @@ for(i in 1:length(cutoffs))
     lines(x = levels, y = allData.table.prob, col = count, type = "b")
   }
 }
-legend(x = 5, y = 0.3, inset=.05, title="Number of bins", fill=seq(1, count), legend = cutoffs)
+legend(x = 5, y = 1, inset=.05, title="Cutoff Points", fill=seq(1, count), legend = cutoffs)
 dev.off()
