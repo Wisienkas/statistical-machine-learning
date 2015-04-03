@@ -1,5 +1,6 @@
 install.packages("klaR")
 install.packages("caret")
+install.packages("e1071")
 
 library(klaR)
 library(e1071)

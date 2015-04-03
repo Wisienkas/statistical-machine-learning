@@ -1,0 +1,15 @@
+At normalization:
+
+ - Show the difference with/without sigma(Image Smoothing)
+
+At K-means Clustering:
+
+ - Show succes rate with K nearest Neighbor
+
+=============================
+
+Using naive bayes ways:
+  1. Direct Naive Bayes (maybe practical impossible)
+
+  2. Pca -> naive bayes (few dimensions)
+
