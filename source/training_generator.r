@@ -95,10 +95,10 @@ splitBalanced <- function(largeMatrix, classes, split) {
       break()
     }
   }
-  print(inStreak)
-  
+  print(paste("In streak", inStreak))
+  print(paste("In factors", factors))
   persons <- len / (factors * inStreak)
-
+  print(paste("Persons: ", persons))
   takePerDigit <- inStreak * split
 
   index_arr <- c()
