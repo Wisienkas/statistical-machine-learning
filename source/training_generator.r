@@ -128,8 +128,8 @@ classification <- function(numbers, times) {
 
 streamlineList <- function(largeList) {
   print(paste("Length of large List:", length(largeList)))
-  arr <- largeList[[1]]
-  for(i in seq(2:length(largeList))){
+  arr <- rbind(largeList[[1]])
+  for(i in 2:length(largeList)){
     arr <- rbind(arr, largeList[[i]])
   }
   return(arr)
@@ -152,4 +152,31 @@ getChunkSplit <- function(largeMatrix, classes, split, chunkSize) {
   trainClassF <- classes[index_arr]
   testClassF <- classes[-index_arr]
   return( list(trainData, testData, trainClassF, testClassF) )
+}
+
+getFolds <- function(data, classes) {
+  splits <- nlevels(classes) * 10
+  class.len <- length(classes)
+  persons <- class.len / 4000
+  
+  # Define List
+  folds <- list()
+  # Iterating folds
+  for(fold in 1:10) {
+      by <- (class.len / 10) / persons
+      from <- ((fold - 1) * (by / 10)) + 1
+      index.from <- seq(from = from, to = class.len, by = by)
+      index.to <- seq(from = from + 39, to = class.len, by = by)
+      index.fold <- list(from = index.from, to = index.to)
+      folds <- c(folds, list(index.fold))
+  }
+  return (folds)
+}
+
+getIndexFromFolds <- function(from, to) {
+  indexes <- c()
+  for(i in 1:length(from)) {
+    indexes <- c(indexes, from[i]:to[i])
+  }
+  return (indexes)
 }

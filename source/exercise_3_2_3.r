@@ -29,6 +29,7 @@ myData.data.class <- classification(numbers = 0:9, times = 400)
 levels <- c(0:9)
 cutoffs <- c(0.8, 0.9, 0.95, 0.99);
 count <- 0;
+folds <- getFolds(data = myData.data, classes = myData.data.class)
 
 # Starts new plot
 png("Img/MYDATA_NB_PCA.png")
@@ -36,33 +37,49 @@ for(i in 1:length(cutoffs))
 {
   count <- count + 1;
   cutoff <- cutoffs[[i]];
+  print(paste("Running cutoff: ", cutoff))
   
   myData.data.pca <- pcaTruncate(data = myData.data, cutoff = cutoff)
   
-  retList = splitBalanced(largeMatrix = myData.data, classes = myData.data.class, split = 0.9)
-  training = retList[[1]]
-  testing = retList[[2]]
-  trainClassF = retList[[3]]
-  testClassF = retList[[4]]
-  
-  myData.naive.model <- naiveBayes(x = training, y = trainClassF)
-  
-  myData.naive.predict <- predict(myData.naive.model, testing)
-  
-  myData.naive.table <- table(myData.naive.predict, testClassF)
-  myData.table.units <- table(myData.naive.predict == testClassF, testClassF)[seq(from = 2, to = 20, by = 2)]
-  myData.table.prob <- myData.table.units / (nrow(testing) / nlevels(testClassF))
+  result <- c()
+  # 10 runs of crossvalidation
+  for(cv in 1:10) {
+    print(paste("Running in run:", cv, " out of:", 10))
+    testFold.range <- folds[[cv]];
+    testFold.index <- getIndexFromFolds(testFold.range$from, testFold.range$to)
+    testing <- myData.data.pca[testFold.index, ]
+    testClassF <- myData.data.class[testFold.index]
+    training <- myData.data.pca[-testFold.index, ]
+    trainClassF <- myData.data.class[-testFold.index]
+    
+    myData.naive.model <- naiveBayes(x = training, y = trainClassF)
+    
+    myData.naive.predict <- predict(myData.naive.model, testing)
+    
+    myData.naive.table <- table(myData.naive.predict, testClassF)
+    myData.table.units <- table(myData.naive.predict == testClassF, testClassF)[seq(from = 2, to = 20, by = 2)]
+    myData.table.prob <- myData.table.units / (nrow(testing) / nlevels(testClassF))
+    result <- c(result, myData.table.prob)
+  }
+  # Calculate the mean correctness for each digit. 
+  correctness <- c()
+  for(digit in 1:10) {
+    index.digit <- seq(from = digit, to = length(result), by = 10);
+    avg <- mean(result[index.digit])
+    correctness <- c(correctness, avg)
+  }
   
   if(count == 1)
   {
-    plot(x = levels, y = myData.table.prob, col = count, type = "b", xlim = c(0, 9), ylim = c(0, 1), ylab = 'Success rate', xlab = 'Digits', main = "Naive Bayes with PCA for digits Success Rate") 
+    plot(x = levels, y = correctness, col = count, type = "b", xlim = c(0, 9), ylim = c(0, 1), ylab = 'Success rate', xlab = 'Digits', main = "Naive Bayes with PCA for digits Success Rate") 
   }
   else
   {
-    lines(x = levels, y = myData.table.prob, col = count, type = "b")
+    lines(x = levels, y = correctness, col = count, type = "b")
   }
+
 }
-legend(x = 5, y = 0.3, inset=.05, title="Number of bins", fill=seq(1, count), legend = cutoffs)
+legend(x = 5, y = 0.3, inset=.05, title="Cutoff Points", fill=seq(1, count), legend = cutoffs)
 dev.off()
 
 # # # #
@@ -83,6 +100,7 @@ allData.data.class <- classification(numbers = rep(times = nrow(allData.data) / 
 levels <- c(0:9)
 cutoffs <- c(0.8, 0.9, 0.95, 0.99);
 count <- 0;
+folds <- getFolds(data = allData.data, classes = allData.data.class)
 
 # Starts new plot
 png("Img/ALLDATA_NB_PCA.png")
@@ -90,31 +108,47 @@ for(i in 1:length(cutoffs))
 {
   count <- count + 1;
   cutoff <- cutoffs[[i]];
+  print(paste("Running cutoff: ", cutoff))
   
   allData.data.pca <- pcaTruncate(data = allData.data, cutoff = cutoff)
   
-  retList = splitBalanced(largeMatrix = allData.data, classes = allData.data.class, split = 0.9)
-  training = retList[[1]]
-  testing = retList[[2]]
-  trainClassF = retList[[3]]
-  testClassF = retList[[4]]
-  
-  allData.naive.model <- naiveBayes(x = training, y = trainClassF)
-  
-  allData.naive.predict <- predict(allData.naive.model, testing)
-  
-  allData.naive.table <- table(allData.naive.predict, testClassF)
-  allData.table.units <- table(allData.naive.predict == testClassF, testClassF)[seq(from = 2, to = 20, by = 2)]
-  allData.table.prob <- allData.table.units / (nrow(testing) / nlevels(testClassF))
+  result <- c()
+  # 10 runs of crossvalidation
+  for(cv in 1:10) {
+    print(paste("Running in run:", cv, " out of:", 10))
+    testFold.range <- folds[[cv]];
+    testFold.index <- getIndexFromFolds(testFold.range$from, testFold.range$to)
+    testing <- allData.data.pca[testFold.index, ]
+    testClassF <- allData.data.class[testFold.index]
+    training <- allData.data.pca[-testFold.index, ]
+    trainClassF <- allData.data.class[-testFold.index]
+    
+    allData.naive.model <- naiveBayes(x = training, y = trainClassF)
+    
+    allData.naive.predict <- predict(allData.naive.model, testing)
+    
+    allData.naive.table <- table(allData.naive.predict, testClassF)
+    allData.table.units <- table(allData.naive.predict == testClassF, testClassF)[seq(from = 2, to = 20, by = 2)]
+    allData.table.prob <- allData.table.units / (nrow(testing) / nlevels(testClassF))
+    result <- c(result, allData.table.prob)
+  }
+  # Calculate the mean correctness for each digit. 
+  correctness <- c()
+  for(digit in 1:10) {
+    index.digit <- seq(from = digit, to = length(result), by = 10);
+    avg <- mean(result[index.digit])
+    correctness <- c(correctness, avg)
+  }
   
   if(count == 1)
   {
-    plot(x = levels, y = allData.table.prob, col = count, type = "b", xlim = c(0, 9), ylim = c(0, 1), ylab = 'Success rate', xlab = 'Digits', main = "Naive Bayes with PCA for digits Success Rate") 
+    plot(x = levels, y = correctness, col = count, type = "b", xlim = c(0, 9), ylim = c(0, 1), ylab = 'Success rate', xlab = 'Digits', main = "Naive Bayes with PCA for digits Success Rate") 
   }
   else
   {
-    lines(x = levels, y = allData.table.prob, col = count, type = "b")
+    lines(x = levels, y = correctness, col = count, type = "b")
   }
+  
 }
 legend(x = 5, y = 1, inset=.05, title="Cutoff Points", fill=seq(1, count), legend = cutoffs)
 dev.off()
