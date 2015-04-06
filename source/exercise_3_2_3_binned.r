@@ -4,14 +4,15 @@ source('knn_runner.r')
 source('normalization.r')
 source('knn_cross_validation.r')
 source('pca_optimization.r')
+source('training_generator.r')
 
 library(klaR)
 library(e1071)
 library(caret)
 
-#######
-# FOR MY DATA
-#######
+# # # #
+# Running for My Data
+# # # # 
 
 #Path to images
 ressourcePath <- 'C:/Users/wisienkas/workspace/SML-database';
@@ -19,25 +20,26 @@ myData.path <- getSingleMemberImages(basePath = ressourcePath, 'group6', 'member
 
 #The raw data
 myData.data.raw <- loadPersonsImageData(memberInfo = myData.path, sigma = 0, DPI = 100);
+#allData.data.raw <- loadAllPeople(basePath = ressourcePath)
 
-myData.data <- streamlineList(largeList = myData.data.raw)
+myData.data <- streamlineList(largeList = myData.data.raw);
 
 myData.data.class <- classification(numbers = 0:9, times = 400)
 
 levels <- c(0:9)
-binArr <- c(2,5,10,15);
+cutoffs <- c(0.8, 0.9, 0.95, 0.99);
 count <- 0;
-
 folds <- getFolds(data = myData.data, classes = myData.data.class)
 
-# Creating PNG Image to img folder
-png("Img/MYDATA_NB_BINS.png")
-for(i in 1:length(binArr))
+# Starts new plot
+png("Img/MYDATA_NB_PCA_BIN.png")
+for(i in 1:length(cutoffs))
 {
   count <- count + 1;
-  bins <- binArr[[i]];
+  cutoff <- cutoffs[[i]];
+  print(paste("Running cutoff: ", cutoff))
   
-  print(paste("Running Bins:", bins))
+  myData.data.pca <- pcaTruncate(data = myData.data, cutoff = cutoff)
   
   result <- c()
   # 10 runs of crossvalidation
@@ -45,19 +47,19 @@ for(i in 1:length(binArr))
     print(paste("Running in run:", cv, " out of:", 10))
     testFold.range <- folds[[cv]];
     testFold.index <- getIndexFromFolds(testFold.range$from, testFold.range$to)
-    testing <- myData.data[testFold.index, ]
+    testing <- myData.data.pca[testFold.index, ]
     testClassF <- myData.data.class[testFold.index]
-    training <- myData.data[-testFold.index, ]
+    training <- myData.data.pca[-testFold.index, ]
     trainClassF <- myData.data.class[-testFold.index]
     
     cutpoints <- quantile(training, (0:bins) / bins)
     
     myData.binned <- cut(training, cutpoints, include.lowest=TRUE)
-    myData.binned <- split(myData.binned, 1:380)
+    myData.binned <- split(myData.binned, 1:ncol(training))
     myData.binned <- as.data.frame(myData.binned)
     
     myData.binned.test <- cut(testing, cutpoints, include.lowest=TRUE)
-    myData.binned.test <- split(myData.binned.test, 1:380)
+    myData.binned.test <- split(myData.binned.test, 1:ncol(testing))
     myData.binned.test <- as.data.frame(myData.binned.test)
     
     myData.naive.model <- naiveBayes(x = myData.binned, y = trainClassF)
@@ -77,45 +79,50 @@ for(i in 1:length(binArr))
     avg <- mean(result[index.digit])
     correctness <- c(correctness, avg)
   }
-    
+  
   if(count == 1)
   {
-    plot(x = levels, y = correctness, type = "b", col=count, xlim = c(0, 9), ylim = c(0, 1), ylab = 'Success rate', xlab = 'Digits')
+    plot(x = levels, y = correctness, col = count, type = "b", xlim = c(0, 9), ylim = c(0, 1), ylab = 'Success rate', xlab = 'Digits', main = "Naive Bayes with PCA for digits Success Rate") 
   }
   else
   {
-    lines(x = levels, y = correctness, type = "b", col=count)    
+    lines(x = levels, y = correctness, col = count, type = "b")
   }
+  
 }
-legend("topright", inset=.05, title="Number of bins", fill=seq(1, count), bty = 'n', legend = binArr)
+legend(x = 5, y = 0.3, inset=.05, title="Cutoff Points", fill=seq(1, count), legend = cutoffs)
 dev.off()
 
-
-#######
-# FOR ALL DATA
-#######
+# # # #
+# Running for All Data
+# # # # 
 
 #Path to images
 ressourcePath <- 'C:/Users/wisienkas/workspace/SML-database';
+allData.path <- getAllMemberImages(basePath = ressourcePath)
+
+#The raw data
 allData.data.raw <- loadAllPeople(basePath = ressourcePath)
 
-allData.data <- streamlineList(largeList = allData.data.raw)
+allData.data <- streamlineList(largeList = allData.data.raw);
 
 allData.data.class <- classification(numbers = rep(times = nrow(allData.data) / 4000, x = 0:9), times = 400)
 
 levels <- c(0:9)
-binArr <- c(2,5,10,15);
-count <- 0;
+cutoffs <- c(0.8, 0.9, 0.95, 0.99)
+count <- 0
 folds <- getFolds(data = allData.data, classes = allData.data.class)
+bins <- 10
 
-# Creating PNG Image to img folder
-png("Img/ALLDATA_NB_BINS.png")
-for(i in 1:length(binArr))
+# Starts new plot
+png("Img/ALLDATA_NB_PCA_BIN.png")
+for(i in 1:length(cutoffs))
 {
   count <- count + 1;
-  bins <- binArr[[i]];
+  cutoff <- cutoffs[[i]];
+  print(paste("Running cutoff: ", cutoff))
   
-  print(paste("Running Bins:", bins))
+  allData.data.pca <- pcaTruncate(data = allData.data, cutoff = cutoff)
   
   result <- c()
   # 10 runs of crossvalidation
@@ -123,19 +130,19 @@ for(i in 1:length(binArr))
     print(paste("Running in run:", cv, " out of:", 10))
     testFold.range <- folds[[cv]];
     testFold.index <- getIndexFromFolds(testFold.range$from, testFold.range$to)
-    testing <- allData.data[testFold.index, ]
+    testing <- allData.data.pca[testFold.index, ]
     testClassF <- allData.data.class[testFold.index]
-    training <- allData.data[-testFold.index, ]
+    training <- allData.data.pca[-testFold.index, ]
     trainClassF <- allData.data.class[-testFold.index]
     
     cutpoints <- quantile(training, (0:bins) / bins)
     
     allData.binned <- cut(training, cutpoints, include.lowest=TRUE)
-    allData.binned <- split(allData.binned, 1:380)
+    allData.binned <- split(allData.binned, 1:ncol(training))
     allData.binned <- as.data.frame(allData.binned)
     
     allData.binned.test <- cut(testing, cutpoints, include.lowest=TRUE)
-    allData.binned.test <- split(allData.binned.test, 1:380)
+    allData.binned.test <- split(allData.binned.test, 1:ncol(testing))
     allData.binned.test <- as.data.frame(allData.binned.test)
     
     allData.naive.model <- naiveBayes(x = allData.binned, y = trainClassF)
@@ -158,12 +165,13 @@ for(i in 1:length(binArr))
   
   if(count == 1)
   {
-    plot(x = levels, y = correctness, type = "b", col=count, xlim = c(0, 9), ylim = c(0, 1), ylab = 'Success rate', xlab = 'Digits')
+    plot(x = levels, y = correctness, col = count, type = "b", xlim = c(0, 9), ylim = c(0, 1), ylab = 'Success rate', xlab = 'Digits', main = "Naive Bayes with PCA for digits Success Rate") 
   }
   else
   {
-    lines(x = levels, y = correctness, type = "b", col=count)    
+    lines(x = levels, y = correctness, col = count, type = "b")
   }
+  
 }
-legend("topright", inset=.05, title="Number of bins", fill=seq(1, count), bty = 'n', legend = binArr)
+legend(x = 5, y = 1, inset=.05, title="Cutoff Points", fill=seq(1, count), legend = cutoffs)
 dev.off()

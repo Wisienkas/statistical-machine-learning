@@ -22,6 +22,8 @@ myData.data.raw <- loadPersonsImageData(memberInfo = myData.path, sigma = 0, DPI
 
 myData.data <- streamlineList(largeList = myData.data.raw)
 
+myData.data.class <- classification(numbers = 0:9, times = 400)
+
 levels <- c(0:9)
 bins <- 5;
 
@@ -97,6 +99,8 @@ ressourcePath <- 'C:/Users/wisienkas/workspace/SML-database';
 allData.data.raw <- loadAllPeople(basePath = ressourcePath)
 
 allData.data <- streamlineList(largeList = allData.data.raw)
+
+allData.data.class <- classification(numbers = rep(times = nrow(allData.data) / 4000, x = 0:9), times = 400)
 
 levels <- c(0:9)
 bins <- 10;

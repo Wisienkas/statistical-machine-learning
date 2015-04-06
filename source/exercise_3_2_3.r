@@ -32,7 +32,7 @@ count <- 0;
 folds <- getFolds(data = myData.data, classes = myData.data.class)
 
 # Starts new plot
-png("Img/MYDATA_NB_PCA.png")
+png("Img/MYDATA_NB_PCA_BIN.png")
 for(i in 1:length(cutoffs))
 {
   count <- count + 1;
