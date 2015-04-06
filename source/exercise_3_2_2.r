@@ -24,7 +24,7 @@ myData.data <- streamlineList(largeList = myData.data.raw)
 
 levels <- c(0:9)
 bins <- 5;
-cutpoints <- quantile(training, (0:bins) / bins)
+
 folds <- getFolds(data = myData.data, classes = myData.data.class)
 
 count <- 0;
@@ -48,6 +48,8 @@ for(i in 1:length(laplaceArr))
     testClassF <- myData.data.class[testFold.index]
     training <- myData.data[-testFold.index, ]
     trainClassF <- myData.data.class[-testFold.index]
+    
+    cutpoints <- quantile(training, (0:bins) / bins)
     
     myData.binned <- cut(training, cutpoints, include.lowest=TRUE)
     myData.binned <- split(myData.binned, 1:380)
@@ -97,12 +99,11 @@ allData.data.raw <- loadAllPeople(basePath = ressourcePath)
 allData.data <- streamlineList(largeList = allData.data.raw)
 
 levels <- c(0:9)
-bins <- 5;
-cutpoints <- quantile(training, (0:bins) / bins)
+bins <- 10;
 folds <- getFolds(data = allData.data, classes = allData.data.class)
 
 count <- 0;
-laplaceArr <- c(0, 1, 2, 5, 10)
+laplaceArr <- c(0, 1, 5, 50, 300)
 
 # Creating PNG Image putput
 png("Img/ALLDATA_NB_LAPLACE.png")
@@ -122,6 +123,8 @@ for(i in 1:length(laplaceArr))
     testClassF <- allData.data.class[testFold.index]
     training <- allData.data[-testFold.index, ]
     trainClassF <- allData.data.class[-testFold.index]
+    
+    cutpoints <- quantile(training, (0:bins) / bins)
     
     allData.binned <- cut(training, cutpoints, include.lowest=TRUE)
     allData.binned <- split(allData.binned, 1:380)
