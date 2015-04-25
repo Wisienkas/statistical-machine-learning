@@ -59,10 +59,21 @@ myData.colnames.class <- colnames(myData.classMatrix)
 names <- c(colnames(myData.pca), colnames(myData.classMatrix))
 colnames(myData.map) <- names;
 
-splitMatrix()
+# Splitting with 90% on training
+myData.matrix <- splitMatrix(myData.map, 0.9)
+
+myData.test <- as.data.frame(myData.matrix["test"])
+myData.train <- as.data.frame(myData.matrix["train"])
+
+colnames(myData.test) <- names;
+colnames(myData.train) <- names;
+
+dataCols <- ncol(myData.pca)
 
 myData.formula <- paste(paste(myData.colnames.class, collapse = " + "), paste(myData.colnames.data, collapse = " + "), sep = " ~ ")
-mod <- neuralnet(myData.formula, data = myData.map[seq(from = 1, to = 4000, by = 10),], hidden = 380, threshold = 0.01, rep = 1)
+myData.network <- neuralnet(myData.formula, data = myData.train, hidden = 380, threshold = 0.01, rep = 1)
+
+myData.result <- compute(myData.network, myData.test[dataCols])
 
 # plotnet
 par(mar = numeric(4), family = 'serif')
