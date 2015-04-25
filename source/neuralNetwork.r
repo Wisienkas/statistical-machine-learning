@@ -31,11 +31,15 @@ makeClassBinaryTable <- function(classes) {
 splitMatrix <- function(matrix, split) {
   splits <- split * nrow(matrix)
   trainRows <- sample(1:nrow(matrix), size = splits, replace = FALSE)
-  testRows <- matrix[-trainRows];
+  
+  trainData <- matrix[trainRows, ];
+  testData <- matrix[-trainRows, ];
+  
+  return(list("train" = trainData, "test" = testData))
 }
 
 # Loading the data 
-basePath <- "C:/Users/wisienkas/workspace/SML-database/"
+basePath <- "/home/wisienkas/workspace/school/6sem/sml/exercise/svn/trunk"
 myData.rawData.path <- getSingleMemberImages(basePath = basePath, group_name = "group6", member_name = "member1")
 myData.rawData <- loadPersonsImageData(memberInfo = myData.rawData.path, sigma = 1, DPI = 100)
 
