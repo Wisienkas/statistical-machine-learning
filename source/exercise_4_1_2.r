@@ -5,11 +5,20 @@ source('file_locator.r')
 source('image_reader.r')
 source('training_generator.r')
 
-ressourcePath <- 'E:\\SML_SVN\\trunk';
-myData.path <- getSingleMemberImages(basePath = ressourcePath, 'group6', 'member2');
+# Loading the data
+# Nikolaj PATHs: 
+# Home pc:  C:/Users/wisienkas/workspace/SML-database
+# Laptop :  /home/wisienkas/workspace/school/6sem/sml/exercise/svn/trunk
+#
+# Thomas PATHs:
+# home pc: 
+# Laptop : 
+basePath <- "C:/Users/wisienkas/workspace/SML-database"
+myData.rawData.path <- getSingleMemberImages(basePath = basePath, group_name = "group6", member_name = "member1")
+myData.data.raw <- loadPersonsImageData(memberInfo = myData.rawData.path, sigma = 1, DPI = 100)
 
 #The raw data
-myData.data.raw <- loadPersonsImageData(memberInfo = myData.path, sigma = 0, DPI = 100);
+#myData.data.raw <- loadPersonsImageData(memberInfo = myData.path, sigma = 0, DPI = 100);
 #allData.data.raw <- loadAllPeople(basePath = ressourcePath)
 
 myData.data <- streamlineList(largeList = myData.data.raw);
