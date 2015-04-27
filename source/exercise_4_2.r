@@ -6,7 +6,15 @@ source('file_locator.r')
 source('image_reader.r')
 source('training_generator.r')
 
-ressourcePath <- 'E:\\SML_SVN\\trunk';
+# Loading the data
+# Nikolaj PATHs: 
+# Home pc:  C:/Users/wisienkas/workspace/SML-database
+# Laptop :  /home/wisienkas/workspace/school/6sem/sml/exercise/svn/trunk
+#
+# Thomas PATHs:
+# home pc: 
+# Laptop : 
+ressourcePath <- '/home/wisienkas/workspace/school/6sem/sml/exercise/svn/trunk';
 myData.path <- getSingleMemberImages(basePath = ressourcePath, 'group6', 'member2');
 
 #The raw data
@@ -17,13 +25,7 @@ myData.data <- streamlineList(largeList = myData.data.raw);
 
 myData.data.class <- classification(numbers = 0:9, times = 400)
 
-retList = getRandomSplit(myData.data.raw, 0.9)
-training = retList[[1]]
-testing = retList[[2]]
-trainClassF = retList[[3]]
-testClassF = retList[[4]]
-
-rf <- randomForest(x= training, y = trainClassF);
+rf <- randomForest(x= myData.data, y = myData.data.class);
 
 print(rf)
 importance(rf)
