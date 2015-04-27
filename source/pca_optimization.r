@@ -21,7 +21,7 @@ pcaTruncate <- function(data, cutoff) {
   myData.pca.cumulative <- cumsum(myData.pca$sdev ^ 2 / sum(myData.pca$sdev ^ 2))
   
   cutoffIndex <- sum(myData.pca.cumulative < cutoff) + 1
-  
+  # Why is predict here ? ?? 
   myData.trunc <- predict(myData.pca)[, 1:cutoffIndex]
   
   return (myData.trunc)
@@ -33,6 +33,11 @@ pcaTruncate <- function(data, cutoff) {
   #myData.pca.var <- myData.pca.eig / totalVarMyData
   
   #return(myData)
+}
+
+pcaGetComponets <- function(data, components) {
+  pcaObject <- prcomp(data, center = TRUE)
+  return(pcaObject$x[, 1:components])
 }
 
 

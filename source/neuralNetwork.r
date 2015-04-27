@@ -4,6 +4,7 @@ install.packages("neuralnet")
 
 library(NeuralNetTools)
 library(neuralnet)
+library(RSNNS)
 
 library(caret)
 library(nnet)
@@ -74,7 +75,7 @@ names <- c(colnames(myData.pca), colnames(myData.classMatrix))
 colnames(myData.map) <- names;
 
 # Splitting with 90% on training
-myData.matrix <- splitMatrix(myData.map, 0.2)
+myData.matrix <- splitMatrix(myData.map, 0.5)
 
 myData.test <- as.data.frame(myData.matrix["test"])
 myData.train <- as.data.frame(myData.matrix["train"])
@@ -88,40 +89,63 @@ myData.formula <- paste(paste(myData.colnames.class, collapse = " + "), paste(my
 #myData.network <- neuralnet(myData.formula, data = myData.train, hidden = 80, threshold = 0.01, rep = 1, startweights = 0.8, stepmax = 1e6)
 
 sizeArgs <- c(5, 15, 50, 150)
+layers <- list(c(5, 5, 5), c(15, 15, 15), c(15), c(50, 15, 50))
+layerNames <- c(paste("h:", paste(layers[[1]], collapse = "-")))
+layerNames <- c(layerNames, paste("h:", paste(layers[[2]], collapse = "-")))
+layerNames <- c(layerNames, paste("h:", paste(layers[[3]], collapse = "-")))
+layerNames <- c(layerNames, paste("h:", paste(layers[[4]], collapse = "-")))
 
-count <- 1;
-png("Img/MYDATA_NN_PCA.png")
-for(size in sizeArgs) {
-  myData.network <- nnet(x = myData.train[, dataCols], y = myData.train[, !colnames(myData.train) %in% dataCols], 
-                         size = size, rang = 0.01, decay = 5e-4, maxit = 10000, MaxNWts = 10000)
+networkModel <- 1:2
+for(model in networkModel) {
   
-  myData.result <- predict(myData.network, myData.test[, dataCols])
-  
-  myData.result.names <- colnames(myData.result)[max.col(myData.result, ties.method = "first")]
-  myData.result.class <- factor(as.numeric(substr(x = myData.result.names, start = 6, stop = 7)))
-  
-  myData.test.classM <- myData.test[, !colnames(myData.train) %in% dataCols]
-  myData.test.names <- colnames(myData.test.classM)[max.col(myData.test.classM, ties.method = "first")]
-  myData.test.class <- factor(as.numeric(substr(x = myData.test.names, start = 6, stop = 7)))
-  
-  myData.result.table <- table(myData.result.class, myData.test.class)
-  myData.result.units <- table(myData.result.class == myData.test.class, myData.test.class)[seq(from = 2, to = 20, by = 2)]
-  myData.table.prob <- myData.result.units / (nrow(myData.test) / nlevels(myData.test.class))
-  
-  if(count == 1)
-  {
-    plot(x = 0:9, y = myData.table.prob, col = count, type = "b", xlim = c(0, 9), ylim = c(0, 1), ylab = 'Success rate', xlab = 'Digits', main = "Neural Networks with PCA") 
+  count <- 1;
+  if(model == 1) {
+    png("Img/MYDATA_NN_PCA_NNET.png")
+  } else {
+    png("Img/MYDATA_NN_PCA_MLP.png")
   }
-  else
-  {
-    lines(x = 0:9, y = myData.table.prob, col = count, type = "b")
+  for(i in 1:4) {
+    if(model == 1) {
+      myData.network <- nnet(x = myData.train[, dataCols], y = myData.train[, !colnames(myData.train) %in% dataCols], 
+                             size = sizeArgs[i], rang = 0.01, decay = 5e-4, maxit = 10000, MaxNWts = 10000)
+    } else {
+      myData.network <- mlp(x = myData.train[, dataCols], y = myData.train[, !colnames(myData.train) %in% dataCols],
+                            maxit = 10000, learnFuncParams=c(0.01), size = layers[[i]],
+                            inputsTest = myData.test[, dataCols], targetsTest = myData.test[, !colnames(myData.train) %in% dataCols])    
+    }
+    
+    myData.result <- predict(myData.network, myData.test[, dataCols])
+    colnames(myData.result) <- 0:9
+    
+    myData.result.names <- colnames(myData.result)[max.col(myData.result, ties.method = "first")]
+    myData.result.class <- factor(as.numeric(myData.result.names))
+    
+    myData.test.classM <- myData.test[, !colnames(myData.train) %in% dataCols]
+    myData.test.names <- colnames(myData.test.classM)[max.col(myData.test.classM, ties.method = "first")]
+    myData.test.class <- factor(as.numeric(substr(x = myData.test.names, start = 6, stop = 7)))
+    
+    myData.result.table <- table(myData.result.class, myData.test.class)
+    myData.result.units <- table(myData.result.class == myData.test.class, myData.test.class)[seq(from = 2, to = 20, by = 2)]
+    myData.table.prob <- myData.result.units / (nrow(myData.test) / nlevels(myData.test.class))
+    
+    if(count == 1)
+    {
+      plot(x = 0:9, y = myData.table.prob, col = count, type = "b", xlim = c(0, 9), ylim = c(0, 1), ylab = 'Success rate', xlab = 'Digits', main = "Neural Networks with PCA") 
+    }
+    else
+    {
+      lines(x = 0:9, y = myData.table.prob, col = count, type = "b")
+    }
+    count <- count + 1
   }
-  count <- count + 1
+  grid()
+  if(model == 1) {
+    legend("bottomleft", inset=.05, title="hidden Nodes", fill=seq(1, count), legend = sizeArgs)
+  } else {
+    legend("bottomleft", inset=.05, title="hidden Nodes", fill=seq(1, count), legend = layerNames)
+  }
+  dev.off()
 }
-legend("bottomleft", inset=.05, title="hidden Nodes", fill=seq(1, count), legend = sizeArgs)
-grid()
-dev.off()
-
 
 ###
 # FOR ALL DATA
