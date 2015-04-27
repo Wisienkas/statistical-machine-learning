@@ -22,6 +22,7 @@ myData.data <- streamlineList(largeList = myData.rawData)
 myData.class <- classification(numbers = 0:9, times = nrow(myData.data) / 10)
 
 myData.pca50 <- pcaGetComponets(myData.data, 50)
+allData.pca50 <- pcaGetComponets(allData.data, 50)
 
 splitMatrix <- function(matrix, split) {
   splits <- split * nrow(matrix)
@@ -121,16 +122,18 @@ tree_predict <- getMaxInRow(tree_predict)
 correctness <- mean(tree_predict == myData.test[, 51])
 
 
-
+pca50 <- allData.pca50
+class <- allData.class
 
 ent <- list()
-ent_bf <- log2(10)
+ent_bf <- sum(rep(-0.1*log2(0.1), times = 10))
 for(pc in 1:50) {
-  col <- myData.pca50[, pc]
+  col <- pca50[, pc]
   prob <- c()
   for(t in seq(from = (min(col) + 0.01), to = (max(col) - 0.01), by = 0.01)) {
     candidates <- col < t
-    prob <- c(prob, myEntro(split(candidates, myData.class)))
+    splitted <- split(class, candidates)
+    prob <- c(prob, myEntro(splitted))
   }
   ent[[pc]] <- list("ent" = prob, "seq" = seq(from = (min(col) + 0.01), to = (max(col) - 0.01), by = 0.01))
   indexes <- which(!is.na(ent[[pc]]$ent))
@@ -165,25 +168,73 @@ for(pc in ent) {
   count <- count + 1
 }
 grid()
+legend("bottomleft", fill = 1:8, legend = c(1:8), title = "first 8 PCA's")
 
 myEntro <- function(data) {
   ps <- c()
-  p_total <- 0
-  n_total <- 0
-  for(level in data) {
-    p <- sum(level)
-    n <- length(level) - p
-    p_total <- p_total + p
-    n_total <- n_total + n
+  total <- 0
+  for(branch in data) {
+   total <- total + length(branch) 
   }
-  for(level in data) {
-    p <- sum(level)
-    n <- length(level) - p
-    res <- ((n + p) / (n_total + p_total)) * entropy(p,n)
-    ps <- c(ps, res)
+  for(branch in data) {
+    count <- c()
+    for(level in levels(branch)) {
+      count <- c(count, sum(branch == level))
+    }
+    # total amount in branch
+    q_t <- sum(count)
+    # Probability in branch
+    q_p <- count / q_t
+    # sum of entropy
+    q_s <- sum(-q_p * log2(q_p))
+    # weight for branch
+    q_w <- count / total
+    ps <- c(ps, q_w * q_s)
   }
   return (sum(ps))
 }
 
+# Adding Information Gain
+for(pc in 1:length(ent)) {
+    ent[[pc]]$ig <- ent_bf - ent[[pc]]$ent
+}
+
+minY <- 999
+maxY <- -999
+minX <- 999
+maxX <- -999
+
+for(pc in ent) {
+  if(max(pc$ig) > maxY) maxY <- max(pc$ig)
+  if(min(pc$ig) < minY) minY <- min(pc$ig)
+  if(max(pc$seq) > maxX) maxX <- max(pc$seq)
+  if(min(pc$seq) < minX) minX <- min(pc$seq)
+}
+
+count <- 1
+for(pc in ent) {
+  if(count == 1)
+  {
+    plot(pc$seq, y = pc$ig, col = count, type = "l", xlim = c(minX, maxX), 
+         ylim = c(minY, maxY), ylab = 'Information Gain', xlab = 'Threshold', 
+         main = "Information Gain for the first 50 PCA")
+  }
+  else
+  {
+    lines(pc$seq, y = pc$ig, col = count)
+  }
+  count <- count + 1
+}
+grid()
+legend("bottomleft", fill = 1:8, legend = c(1:8), title = "first 8 PCA's")
+
+#### EASY EXAMPLE !
+q <- c(3,5,10,7,1,1,8,3)
+q_t <- length(q)
+
+q_p <- q / q_t
+
+q_s <- -q_p * log2(q_p)
+sum(q_s)
 
 
